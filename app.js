@@ -39,8 +39,7 @@ app.post('/addNumber', (req, res) => {
         if (error) throw error;
 
         console.log(`Inserted data sucessfully`);
-        res.write("Inserted data sucessfully");
-        res.end();
+        res.send("Inserted data sucessfully");
     });
 });
 
@@ -48,10 +47,9 @@ app.get('/numbers', (req, res) => {
     pool.query("SELECT numbers FROM data", (error, results) => {
         if (error) throw error;
         let result = results.rows.map(element => element.numbers);
-        
+
         console.log(results.rows);
-        res.write(JSON.stringify(result));
-        res.end();
+        res.send(JSON.stringify(result));
     });
 });
 
