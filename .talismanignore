@@ -1,0 +1,6 @@
+fileignoreconfig:
+- filename: logs/requestLogs.log
+  ignore_detectors: []
+
+- filename: .talismanignore
+  ignore_detectors: []
