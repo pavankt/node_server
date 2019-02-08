@@ -13,28 +13,20 @@ const pool = new Pool({
     port: 5432
 });
 
-pool.query("CREATE TABLE data(numbers int)", (error, results) => {
-    if (error) {
-        console.error("Error -------> " + error);
-        return;
-    }
+app.init = () => {
+    app.readyToAcceptRequest = true;
+    pool.query("CREATE TABLE data(numbers int)", (error, results) => {
+        if (error) {
+            console.error("Error -------> " + error);
+            return;
+        }
 
-    console.log("Table created");
-});
-
+        console.log("Table created");
+    });
+}
 app.use(express.json());
 
-app.use((req, res, next) => {
-    let log = `${timeStamp()}: Requested for ${req.url}`;
-
-    fs.appendFile('./logs/requestLogs.log', log + "\n", (err) => {
-        if (err) throw err;
-        console.log(`The "${log}" was appended to file!`);
-    });
-    next();
-});
-
-app.post('/addNumber', (req, res) => {
+app.post('/number', (req, res) => {
     pool.query(`INSERT INTO data VALUES(${req.body.number})`, (error, result) => {
         if (error) throw error;
 
@@ -43,14 +35,26 @@ app.post('/addNumber', (req, res) => {
     });
 });
 
-app.get('/numbers', (req, res) => {
+app.get('/number', (req, res) => {
     pool.query("SELECT numbers FROM data", (error, results) => {
         if (error) throw error;
         let result = results.rows.map(element => element.numbers);
 
-        console.log(results.rows);
+        console.log(result);
         res.send(JSON.stringify(result));
     });
+});
+
+app.get('/status', (req, res) => {
+    app.readyToAcceptRequest ? res.sendStatus(200) : res.sendStatus(503);
+});
+
+app.put('/rest', (req, res) => {
+    app.readyToAcceptRequest = false;
+    setTimeout(() => {
+        app.readyToAcceptRequest = true;
+        res.end();
+    }, 10000);
 });
 
 module.exports = app;
